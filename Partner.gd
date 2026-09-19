@@ -24,7 +24,7 @@ var thought_index: int = 0
 var orbit_angle: float = 0.0
 
 # Scientific connectome telemetry from Google Research male fruit fly brain map
-var connectome_thoughts := [
+var connectome_thoughts: Array[String] = [
 	"✧ R1-R6 Optic Lobes: Tracking Mortal Adam ✧",
 	"✧ 166,000 Neurons Active: Central Complex Synchronized ✧",
 	"✧ DNg13 Descending Motor Neurons: Thrust at 42 Hz ✧",
@@ -41,14 +41,14 @@ func _ready() -> void:
 	setup_wing_materials()
 
 func find_player() -> void:
-	var players = get_tree().get_nodes_in_group("Player")
+	var players: Array[Node] = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
 		target_player = players[0] as CharacterBody3D
 	elif get_parent().has_node("Player"):
 		target_player = get_parent().get_node("Player") as CharacterBody3D
 
 func setup_wing_materials() -> void:
-	var wing_mat := StandardMaterial3D.new()
+	var wing_mat: StandardMaterial3D = StandardMaterial3D.new()
 	wing_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	wing_mat.albedo_color = Color(0.8, 0.95, 1.0, 0.45)
 	wing_mat.roughness = 0.1
@@ -67,7 +67,7 @@ func _physics_process(delta: float) -> void:
 		find_player()
 		return
 
-	var dist_to_player := global_position.distance_to(target_player.global_position)
+	var dist_to_player: float = global_position.distance_to(target_player.global_position)
 	
 	# Determine Connectome Behavioral State
 	if dist_to_player < 2.0:
@@ -80,27 +80,27 @@ func _physics_process(delta: float) -> void:
 		current_state = "ORBITING"
 
 	# Calculate Desired Target Hover Position in 3D Space
-	var target_hover_pos: Vector3
+	var target_hover_pos: Vector3 = target_player.global_position
 	
 	if current_state == "COMMUNING":
 		# Hover closely by Adam's left shoulder
-		var offset = target_player.global_transform.basis * Vector3(-1.4, 1.2, 0.8)
+		var offset: Vector3 = target_player.global_transform.basis * Vector3(-1.4, 1.2, 0.8)
 		target_hover_pos = target_player.global_position + offset
 	elif current_state == "ORBITING":
 		orbit_angle += delta * 0.8
-		var rx = cos(orbit_angle) * follow_distance
-		var rz = sin(orbit_angle) * follow_distance
-		var bob := sin(time_alive * 2.5) * 0.35
+		var rx: float = cos(orbit_angle) * follow_distance
+		var rz: float = sin(orbit_angle) * follow_distance
+		var bob: float = sin(time_alive * 2.5) * 0.35
 		target_hover_pos = target_player.global_position + Vector3(rx, hover_altitude + bob, rz)
 	else: # FOLLOWING or RUSHING
 		# Position behind and slightly above player
-		var offset = -target_player.global_transform.basis.z * follow_distance + Vector3(0, hover_altitude, 0)
-		var bob := sin(time_alive * 3.2) * 0.25
+		var offset: Vector3 = -target_player.global_transform.basis.z * follow_distance + Vector3(0, hover_altitude, 0)
+		var bob: float = sin(time_alive * 3.2) * 0.25
 		target_hover_pos = target_player.global_position + offset + Vector3(0, bob, 0)
 
 	# Steer toward hover position using DNg13 descending motor dynamics
-	var to_target := target_hover_pos - global_position
-	var desired_speed := max_speed
+	var to_target: Vector3 = target_hover_pos - global_position
+	var desired_speed: float = max_speed
 	if current_state == "RUSHING_TO_ADAM":
 		desired_speed = max_speed * 1.8
 	elif current_state == "COMMUNING":
@@ -111,13 +111,13 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	# Visual-motor smooth orientation: Face toward Adam or forward movement
-	var look_target := target_player.global_position + Vector3(0, 1.4, 0)
+	var look_target: Vector3 = target_player.global_position + Vector3(0, 1.4, 0)
 	if velocity.length() > 2.0:
 		look_target = global_position + velocity
 	
-	var cur_pos := global_position
+	var cur_pos: Vector3 = global_position
 	if cur_pos.distance_squared_to(look_target) > 0.01:
-		var target_basis := Transform3D().looking_at(look_target - cur_pos, Vector3.UP).basis
+		var target_basis: Basis = Transform3D().looking_at(look_target - cur_pos, Vector3.UP).basis
 		basis = basis.slerp(target_basis, 6.0 * delta)
 
 	# Biological Wing Flutter (35-45 Hz wing beat frequency)
@@ -134,8 +134,8 @@ func animate_wings(delta: float) -> void:
 	if left_wing == null or right_wing == null:
 		return
 		
-	var flutter_freq := 45.0 if current_state != "COMMUNING" else 22.0
-	var wing_angle := sin(time_alive * flutter_freq) * 0.45
+	var flutter_freq: float = 45.0 if current_state != "COMMUNING" else 22.0
+	var wing_angle: float = sin(time_alive * flutter_freq) * 0.45
 	
 	left_wing.rotation.z = wing_angle
 	right_wing.rotation.z = -wing_angle
@@ -148,32 +148,32 @@ func animate_neural_synapses(delta: float) -> void:
 
 	# Synaptic action potentials (pulse in light energy)
 	if synaptic_light != null:
-		var pulse := 2.2 + sin(time_alive * 6.0) * 0.8 + sin(time_alive * 14.0) * 0.4
+		var pulse: float = 2.2 + sin(time_alive * 6.0) * 0.8 + sin(time_alive * 14.0) * 0.4
 		synaptic_light.light_energy = pulse
 
 	# Optic lobe colors shift during intense tracking
 	if left_optic != null and left_optic.material is StandardMaterial3D:
 		var optic_mat: StandardMaterial3D = left_optic.material
-		var glow := 0.7 + sin(time_alive * 8.0) * 0.3
+		var glow: float = 0.7 + sin(time_alive * 8.0) * 0.3
 		optic_mat.emission_energy_multiplier = glow
 
 func cycle_thought(dist_to_player: float) -> void:
 	next_thought_time = time_alive + 4.5
 	thought_index = (thought_index + 1) % connectome_thoughts.size()
 	
-	var thought := connectome_thoughts[thought_index]
+	var thought: String = connectome_thoughts[thought_index]
 	if current_state == "COMMUNING":
 		thought = "✧ LoVP92 Dimorphic Love-Song: Standing beside Adam ✧"
 	
 	if thought_label:
 		thought_label.text = thought
-		var tween := create_tween()
+		var tween: Tween = create_tween()
 		thought_label.modulate = Color(1.5, 1.5, 1.2, 1.0)
 		tween.tween_property(thought_label, "modulate", Color(1.0, 1.0, 1.0, 0.95), 0.8)
 
 func play_communion_greeting() -> void:
 	# Perform aerial loop when greeted
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(self, "position:y", position.y + 1.8, 0.4).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(self, "rotation:z", deg_to_rad(360), 0.6)
 	if thought_label:
