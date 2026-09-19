@@ -58,4 +58,7 @@ shape = SubResource("BoxShape3D_0xm2m")
 [node name="Player" parent="." unique_id=1657352487 instance=ExtResource("2_r0du0")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6000001, 0)
 
+[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=1849204812]
+
 [connection signal="body_entered" from="SectorAlphaTrigger" to="." method="_on_sector_alpha_trigger_body_entered"]
+
