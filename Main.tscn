@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://jklkwhu5a07y"]
+
+[ext_resource type="Script" uid="uid://315ab8qjknoh" path="res://Main.gd" id="1_uu6xs"]
+[ext_resource type="PackedScene" uid="uid://jmdwthx6mhn6" path="res://Player.tscn" id="2_r0du0"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4flbx"]
+
+[sub_resource type="Sky" id="Sky_sh265"]
+sky_material = SubResource("ProceduralSkyMaterial_4flbx")
+
+[sub_resource type="Environment" id="Environment_k8jva"]
+background_mode = 2
+sky = SubResource("Sky_sh265")
+ambient_light_source = 3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0xm2m"]
+
+[node name="Main" type="Node3D" unique_id=1214621733]
+script = ExtResource("1_uu6xs")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1210708257]
+transform = Transform3D(0.8660254, -0.35355338, 0.35355338, 0, 0.70710677, 0.70710677, -0.5, -0.6123724, 0.6123724, 0, 0, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=577362911]
+environment = SubResource("Environment_k8jva")
+
+[node name="Floor" type="CSGBox3D" parent="." unique_id=2121721083]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+use_collision = true
+size = Vector3(20, 0.5, 20)
+
+[node name="WallNorth" type="CSGBox3D" parent="." unique_id=1176799206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -10)
+use_collision = true
+size = Vector3(20, 4, 0.5)
+
+[node name="WallSouth" type="CSGBox3D" parent="." unique_id=1780138600]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 10)
+use_collision = true
+size = Vector3(20, 4, 0.5)
+
+[node name="WallEast" type="CSGBox3D" parent="." unique_id=1579230127]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2, 0)
+use_collision = true
+size = Vector3(0.5, 4, 20)
+
+[node name="WallWest" type="CSGBox3D" parent="." unique_id=846657338]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 2, 0)
+use_collision = true
+size = Vector3(0.5, 4, 20)
+
+[node name="SectorAlphaTrigger" type="Area3D" parent="." unique_id=1421842895]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SectorAlphaTrigger" unique_id=2061239130]
+transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0, 0)
+shape = SubResource("BoxShape3D_0xm2m")
+
+[node name="Player" parent="." unique_id=1657352487 instance=ExtResource("2_r0du0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6000001, 0)
+
+[connection signal="body_entered" from="SectorAlphaTrigger" to="." method="_on_sector_alpha_trigger_body_entered"]
