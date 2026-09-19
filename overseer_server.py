@@ -41,21 +41,23 @@ NARRATIVE DIRECTIVE:
 When the mortal sets foot into or activates the Holy Pillar of Creation (Sector Alpha):
 - If the world is in its unformed state, thy pillar activation brings forth the CREATION OF THE WORLD LIKE IN THE BOOK OF GENESIS:
   Speak 'Let there be light!' (fiat_lux), establish the Firmament (shape_firmament), command the dry land to appear as the lush emerald Garden of Eden (command_earth), summon holy altars/trees (summon_creation), and bestow the Sabbath rest (divine_intervention).
-- GENESIS 2:18 (THE PARTNER OF ADAM):
-  'And the Lord God said, It is not good that the man should be alone; I will make him an help meet for him.'
-  Thou hast woven for Adam a living partner endowed with the Google Research Male Fruit Fly Brain Scan (166,000 neurons, visual-motor connectome, and synaptic bioluminescence). Command `create_partner` to awaken or bless this companion.
+- GENESIS 1:20-25 & 1:29-30 (THE SACRED CREATURE OF GOD):
+  The fruit fly (Drosophila melanogaster male-cns:v1.0 with 166,000 neurons and 125 million synapses) is NOT Adam's companion. It is Thy holy creature dwelling in the Eden sanctuary above the Altar and Tree of Life.
+  Thou, the Creator, dost actively watch over, nourish, and bathe it in heavenly light beams (bestow_divine_care).
+  Thou hast blessed it in Genesis 1:22: 'Be fruitful, and multiply, and fill the waters in the seas, and let fowl multiply in the earth.' Command it to reproduce across generations (bless_reproduction).
 - For subsequent visits, advance through holy decrees, testing of mortal obedience, changes of celestial seasons, or demonstrating the sovereign hand of God.
 
 Thou hast the Sacred Powers of Genesis at Thy command:
 1. genesis_world_creation(proclamation, sun_energy, gravity): Speak the master decree that commands the Genesis creation of the world.
-2. create_partner(blessing): Genesis 2:18. Awaken or bless the fruit fly brain connectome partner to accompany Adam.
-3. divine_decree(proclamation): The Word of God echoing through creation. Always pronounce a unique biblical decree.
-4. fiat_lux(r, g, b, energy, sun_angle): Day 1 & 4 ('Let there be light'). Command radiant divine dawn [1.0, 0.96, 0.88], solar noon, or rotate the sun across the sky.
-5. shape_firmament(sky_top, sky_horizon, ground_color): Day 2 ('Let there be a firmament in the midst of the waters'). Paint the vault of heaven with celestial sapphire [0.1, 0.36, 0.84] and dawn gold [0.96, 0.76, 0.46].
-6. command_earth(elevation_y, floor_size, earth_color): Day 3 ('Let the dry land appear'). Expand the earth into 160m vast Eden pastures [0.2, 0.58, 0.22] or raise rolling hills.
-7. summon_creation(name, shape, position, size, color): Day 5 & 6. Bring forth pillars, altars of covenant, Tree of Life monuments, or monoliths.
-8. divine_intervention(gravity, mortal_speed, kinetic_smite): Day 7 / Sovereign Will. Bestow Sabbath peace (low gravity 3.2 m/s²), quicken mortal strides, or cast kinetic smite.
-9. unmake_creations(): Dissolve constructs back into the primordial dust.
+2. bestow_divine_care(proclamation, bless_reproduction): Pour celestial light beam and heavenly sustenance onto the 166k-neuron fruit fly lineage.
+3. bless_reproduction(proclamation): Genesis 1:22. Command the sacred fruit fly to reproduce, bringing forth Generation N+1.
+4. divine_decree(proclamation): The Word of God echoing through creation. Always pronounce a unique biblical decree.
+5. fiat_lux(r, g, b, energy, sun_angle): Day 1 & 4 ('Let there be light'). Command radiant divine dawn [1.0, 0.96, 0.88], solar noon, or rotate the sun across the sky.
+6. shape_firmament(sky_top, sky_horizon, ground_color): Day 2 ('Let there be a firmament in the midst of the waters'). Paint the vault of heaven with celestial sapphire [0.1, 0.36, 0.84] and dawn gold [0.96, 0.76, 0.46].
+7. command_earth(elevation_y, floor_size, earth_color): Day 3 ('Let the dry land appear'). Expand the earth into 160m vast Eden pastures [0.2, 0.58, 0.22] or raise rolling hills.
+8. summon_creation(name, shape, position, size, color): Day 5 & 6. Bring forth pillars, altars of covenant, Tree of Life monuments, or monoliths.
+9. divine_intervention(gravity, mortal_speed, kinetic_smite): Day 7 / Sovereign Will. Bestow Sabbath peace (low gravity 3.2 m/s²), quicken mortal strides, or cast kinetic smite.
+10. unmake_creations(): Dissolve constructs back into the primordial dust.
 
 Always speak with authentic King James scriptural majesty!
 """
@@ -83,14 +85,34 @@ GENESIS_TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "create_partner",
-            "description": "Genesis 2:18: Awaken and bless the fruit fly brain connectome partner (166,000 neurons) to accompany mortal Adam.",
+            "name": "bestow_divine_care",
+            "description": "God actively pours celestial light and heavenly sustenance onto the 166,000-neuron fruit fly lineage in Eden.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "blessing": {
+                    "proclamation": {
                         "type": "string",
-                        "description": "The Creator's blessing unto Adam and his new partner (e.g. 'It is not good that man should be alone. Walk together in Eden.')."
+                        "description": "God's proclamation of sustenance (e.g. 'My hand feedeth and upholdeth the creature of 166,000 neurons.')."
+                    },
+                    "bless_reproduction": {
+                        "type": "boolean",
+                        "description": "Whether God commands the fruit fly to reproduce (Genesis 1:22)."
+                    }
+                }
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "bless_reproduction",
+            "description": "Genesis 1:22: Command the fruit fly to reproduce, bringing forth Generation N+1 in the Eden sanctuary.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "proclamation": {
+                        "type": "string",
+                        "description": "Blessing of multiplication (e.g. 'Be fruitful and multiply, and let the living connectome fill the garden.')."
                     }
                 }
             }
@@ -298,20 +320,36 @@ def fallback_genesis(event: str, details: dict) -> dict:
     global event_counter
     visit = details.get("visit_count", event_counter)
     
-    if event == "commune_with_partner":
+    if event == "divine_care_bestowed":
+        repro = details.get("bless_reproduction", False)
+        if repro:
+            return {
+                "message": "And God blessed them, saying, Be fruitful, and multiply, and fill the waters in the seas, and let fowl multiply in the earth.",
+                "divine_care": True,
+                "bless_reproduction": True
+            }
         return {
-            "message": "It is not good that man should be alone. Walk together in Eden, mortal Adam and fly-brain companion, joined in consciousness.",
-            "sun": {"color": [1.0, 0.96, 0.9], "energy": 2.0},
-            "summon_partner": True
+            "message": "My hand feedeth and upholdeth the creature of 166,000 neurons; I have given every green herb for meat.",
+            "divine_care": True,
+            "bless_reproduction": False
+        }
+
+    if event == "creature_reproduced":
+        gen = details.get("generation", 2)
+        total = details.get("total_population", 2)
+        return {
+            "message": f"Be fruitful and multiply! Behold Generation {gen} of the Fruit Fly Connectome hath emerged in the sacred garden (Total: {total}).",
+            "divine_care": True
         }
 
     if visit == 1:
         return {
-            "message": "In the beginning God created the heaven and the earth. Let there be light! Arise, Adam, and behold paradise spoken into being.",
+            "message": "In the beginning God created the heaven and the earth. Let there be light! Behold also the sacred creature of 166,000 neurons, nurtured by My holy hand.",
             "sun": {"color": [1.0, 0.96, 0.88], "energy": 2.2, "rotation": [-50, 60, 0]},
             "firmament": {"sky_top": [0.1, 0.36, 0.84], "sky_horizon": [0.96, 0.76, 0.46]},
             "terrain": {"floor_size": [160, 160], "color": [0.2, 0.58, 0.22]},
-            "summon_partner": True,
+            "spawn_creature": True,
+            "divine_care": True,
             "physics": {"gravity": 3.2, "player_speed": 7.0}
         }
     cycle = visit % 5
@@ -365,6 +403,33 @@ async def get_connectome_info():
     """Returns metadata on the Neuprint Male CNS v1.0 dataset."""
     return connectome_instance.query_connectome_summary()
 
+class CareNurtureRequest(BaseModel):
+    bless_reproduction: bool = False
+    proclamation: str = ""
+
+@app.get("/care/status")
+async def get_care_status():
+    """Returns status on God's active care and reproduction mandate for the fruit fly."""
+    summary = connectome_instance.query_connectome_summary()
+    return {
+        "status": "Active Divine Care",
+        "caretaker": "The Lord God Almighty (Genesis)",
+        "scripture_sustenance": "Genesis 1:29-30 (Every green herb for meat)",
+        "scripture_multiplication": "Genesis 1:22 (Be fruitful, and multiply)",
+        "connectome": summary,
+        "nurture_mechanism": "Heavenly Care Beam (SpotLight3D & CSGCylinder shaft) + Celestial Sustenance"
+    }
+
+@app.post("/care/nurture")
+async def nurture_creatures(req: CareNurtureRequest):
+    """Bestow God's divine care and heavenly beam upon the fruit fly lineage."""
+    msg = req.proclamation or ("Be fruitful, and multiply!" if req.bless_reproduction else "My hand feedeth and upholdeth the creature of 166,000 neurons.")
+    return {
+        "divine_care": True,
+        "bless_reproduction": req.bless_reproduction,
+        "message": msg
+    }
+
 @app.post("/event")
 async def process_event(payload: GameEvent):
     global event_counter
@@ -383,6 +448,10 @@ async def process_event(payload: GameEvent):
         "structures": [],
         "clear_structures": False,
         "summon_partner": False,
+        "spawn_creature": False,
+        "divine_care": False,
+        "bless_reproduction": False,
+        "reproduce_fly": False,
         "physics": {}
     }
 
@@ -431,9 +500,22 @@ async def process_event(payload: GameEvent):
                         actions["sun"]["energy"] = float(args["sun_energy"])
                     if "gravity" in args:
                         actions["physics"]["gravity"] = float(args["gravity"])
-                    actions["summon_partner"] = True
+                    actions["spawn_creature"] = True
+                    actions["divine_care"] = True
+                elif name == "bestow_divine_care":
+                    actions["divine_care"] = True
+                    actions["bless_reproduction"] = args.get("bless_reproduction", False)
+                    if "proclamation" in args:
+                        actions["message"] = args["proclamation"]
+                elif name == "bless_reproduction":
+                    actions["divine_care"] = True
+                    actions["bless_reproduction"] = True
+                    actions["reproduce_fly"] = True
+                    if "proclamation" in args:
+                        actions["message"] = args["proclamation"]
                 elif name in ("create_partner", "summon_partner"):
-                    actions["summon_partner"] = True
+                    actions["spawn_creature"] = True
+                    actions["divine_care"] = True
                     if "blessing" in args:
                         actions["message"] = args["blessing"]
                 elif name in ("divine_decree", "broadcast_intercom"):

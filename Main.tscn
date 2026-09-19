@@ -42,9 +42,12 @@ border_color = Color(0.9, 0.75, 0.3, 0.7)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.45)
-shadow_size = 8
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_beam"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0.9, 0.4, 0)
 
 [node name="Main" type="Node3D" unique_id=1214621733]
 script = ExtResource("1_uu6xs")
@@ -122,6 +125,26 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5)
 [node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=1849204812]
 
 [node name="SpawnedObjects" type="Node3D" parent="." unique_id=748291032]
+
+[node name="FruitFliesContainer" type="Node3D" parent="." unique_id=748291033]
+
+[node name="HeavenlyCareBeam" type="Node3D" parent="." unique_id=748291034]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
+
+[node name="CareLight" type="SpotLight3D" parent="HeavenlyCareBeam" unique_id=748291035]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 16, 0)
+light_color = Color(1, 0.92, 0.55, 1)
+light_energy = 0.0
+spot_range = 22.0
+spot_angle = 24.0
+spot_attenuation = 1.0
+
+[node name="BeamShaft" type="CSGCylinder3D" parent="HeavenlyCareBeam" unique_id=748291036]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+radius = 2.4
+height = 16.0
+sides = 24
+material = SubResource("StandardMaterial3D_beam")
 
 [node name="GenesisHUD" type="CanvasLayer" parent="." unique_id=987123456]
 

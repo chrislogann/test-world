@@ -1,0 +1,113 @@
+[gd_scene format=3 uid="uid://b8yfeem4fly12"]
+
+[ext_resource type="Script" path="res://FruitFly.gd" id="1_fruitfly"]
+[ext_resource type="Texture2D" path="res://assets/fruit_fly_brain/male_fly_brain_hero.webp" id="2_brain_tex"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_part"]
+radius = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_brain"]
+albedo_color = Color(0.75, 0.25, 0.85, 1)
+roughness = 0.3
+metallic = 0.3
+emission_enabled = true
+emission = Color(0.85, 0.3, 0.95, 1)
+emission_energy_multiplier = 1.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_optic"]
+albedo_color = Color(0.15, 0.85, 0.95, 1)
+roughness = 0.2
+metallic = 0.6
+emission_enabled = true
+emission = Color(0.1, 0.75, 0.9, 1)
+emission_energy_multiplier = 1.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vnc"]
+albedo_color = Color(0.9, 0.45, 0.2, 1)
+roughness = 0.4
+metallic = 0.2
+emission_enabled = true
+emission = Color(0.9, 0.4, 0.1, 1)
+emission_energy_multiplier = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_holo"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 1, 1, 0.9)
+albedo_texture = ExtResource("2_brain_tex")
+
+[sub_resource type="QuadMesh" id="QuadMesh_holo"]
+material = SubResource("StandardMaterial3D_holo")
+size = Vector2(1.8, 1.05)
+
+[node name="FruitFly" type="CharacterBody3D" groups=["FruitFlies"]]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_fruitfly")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_part")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Connectome" type="Node3D" parent="Visuals"]
+
+[node name="CentralBrain" type="CSGSphere3D" parent="Visuals/Connectome"]
+radius = 0.42
+radial_segments = 24
+rings = 16
+material = SubResource("StandardMaterial3D_brain")
+
+[node name="LeftOpticLobe" type="CSGSphere3D" parent="Visuals/Connectome"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42, 0.08, 0.12)
+radius = 0.32
+radial_segments = 24
+rings = 16
+material = SubResource("StandardMaterial3D_optic")
+
+[node name="RightOpticLobe" type="CSGSphere3D" parent="Visuals/Connectome"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.08, 0.12)
+radius = 0.32
+radial_segments = 24
+rings = 16
+material = SubResource("StandardMaterial3D_optic")
+
+[node name="VentralNerveCord" type="CSGCylinder3D" parent="Visuals/Connectome"]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.258819, 0, -0.258819, 0.9659258, 0, -0.45, -0.12)
+radius = 0.1
+height = 0.75
+sides = 16
+material = SubResource("StandardMaterial3D_vnc")
+
+[node name="LeftWing" type="CSGBox3D" parent="Visuals/Connectome"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0.22, -0.15)
+size = Vector3(0.85, 0.02, 0.38)
+
+[node name="RightWing" type="CSGBox3D" parent="Visuals/Connectome"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.22, -0.15)
+size = Vector3(0.85, 0.02, 0.38)
+
+[node name="HoloProjector" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 0)
+
+[node name="HoloQuad" type="MeshInstance3D" parent="Visuals/HoloProjector"]
+mesh = SubResource("QuadMesh_holo")
+
+[node name="SynapticLight" type="OmniLight3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+light_color = Color(0.3, 0.85, 1, 1)
+light_energy = 2.2
+omni_range = 6.0
+omni_attenuation = 1.4
+
+[node name="ThoughtLabel" type="Label3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+billboard = 1
+text = "✧ Sacred Creature [male-cns:v1.0] Sustained by God ✧"
+font_size = 18
+outline_size = 4
+modulate = Color(1, 0.95, 0.7, 1)
+outline_modulate = Color(0.05, 0.05, 0.1, 0.9)
+
+[node name="ConnectomeHTTP" type="HTTPRequest" parent="." unique_id=581920193]

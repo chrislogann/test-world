@@ -5,6 +5,9 @@ extends Node3D
 @onready var floor_node: CSGBox3D = $Floor
 @onready var player_node: CharacterBody3D = $Player
 @onready var spawned_objects_container: Node3D = $SpawnedObjects
+@onready var fruit_flies_container: Node3D = $FruitFliesContainer
+@onready var care_light: SpotLight3D = $HeavenlyCareBeam/CareLight
+@onready var beam_shaft: CSGCylinder3D = $HeavenlyCareBeam/BeamShaft
 @onready var world_env: WorldEnvironment = $WorldEnvironment
 @onready var aura_light: OmniLight3D = $SectorAlphaTrigger/AuraLight
 @onready var aura_pillar: CSGCylinder3D = $SectorAlphaTrigger/PillarOfLight
@@ -21,12 +24,17 @@ extends Node3D
 @onready var voice_label: Label = $GenesisHUD/HUDContainer/ScriptureBanner/Margin/VBox/VoiceText
 
 const OVERSEER_URL = "http://127.0.0.1:8000/event"
+const FRUIT_FLY_SCENE: PackedScene = preload("res://FruitFly.tscn")
 
 var is_in_sanctuary: bool = false
 var sanctuary_cooldown: bool = false
 var sanctuary_visit_count: int = 0
 var world_created: bool = false
 var genesis_in_progress: bool = false
+
+# Autonomous Divine Care & Fruitful Multiplication
+var divine_care_timer: float = 0.0
+var divine_care_cycle: int = 0
 
 # Cached Procedural Materials
 var trunk_material: StandardMaterial3D
@@ -48,6 +56,17 @@ func _ready() -> void:
 		"Step into the Holy Pillar of Light to awaken creation.",
 		"\"The earth was without form, and void; and darkness was upon the face of the deep.\""
 	)
+
+func _process(delta: float) -> void:
+	# God actively and autonomously cares for the sacred fruit fly lineage
+	if world_created and fruit_flies_container != null and fruit_flies_container.get_child_count() > 0:
+		divine_care_timer += delta
+		if divine_care_timer >= 22.0:
+			divine_care_timer = 0.0
+			divine_care_cycle += 1
+			# Every 2nd divine care cycle, God blesses the lineage to be fruitful and multiply
+			var bless_repro: bool = (divine_care_cycle % 2 == 0) and (fruit_flies_container.get_child_count() < 7)
+			bestow_divine_care(bless_repro)
 
 func _init_genesis_materials() -> void:
 	trunk_material = StandardMaterial3D.new()
@@ -248,17 +267,17 @@ func trigger_genesis_world_creation() -> void:
 	)
 
 	# ==========================================
-	# GENESIS 2:18: NEUPRINT MALE-CNS:V1.0 AWAKENS (t = 15.2s)
+	# GENESIS 1:20-25: THE SACRED FRUIT FLY CONNECTOME (t = 15.2s)
 	# ==========================================
 	get_tree().create_timer(15.2).timeout.connect(func():
 		display_scripture(
-			"✧ GENESIS 2:18 • NEUPRINT [MALE-CNS:V1.0] AWAKENS ✧",
-			"\"166,000 Neurons & 125 Million Synaptic Connections (Google & Janelia Research)\"",
-			"\"3D creation sensory inputs fed directly into the fruit fly connectome.\""
+			"✧ GENESIS 1:20-25 • SACRED CREATURE OF THE ALMIGHTY ✧",
+			"\"And God created every winged fowl after his kind: and God saw that it was good.\"",
+			"\"166,000 Neurons & 125M Synapses. The Creator Himself nurtureth and feedeth this living connectome.\""
 		)
 
-		# Awaken the Fruit Fly Brain connectome partner
-		spawn_fly_brain_partner()
+		# Awaken the Fruit Fly sacred creature under God's direct care
+		spawn_initial_fruit_fly()
 	)
 
 	# ==========================================
@@ -461,40 +480,157 @@ func spawn_eden_sanctuary_altar() -> void:
 	var tween := create_tween()
 	tween.tween_property(altar_root, "position:y", target_pos.y, 2.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-func spawn_fly_brain_partner() -> void:
-	if has_node("Partner") or (spawned_objects_container and spawned_objects_container.has_node("Partner")):
-		var existing = get_node_or_null("Partner")
-		if existing == null and spawned_objects_container:
-			existing = spawned_objects_container.get_node_or_null("Partner")
-		if existing and existing.has_method("play_communion_greeting"):
-			existing.play_communion_greeting()
+func spawn_initial_fruit_fly() -> void:
+	if fruit_flies_container == null:
+		return
+	if fruit_flies_container.get_child_count() > 0:
 		return
 
-	var partner_scene = load("res://Partner.tscn")
-	if partner_scene == null:
-		print("ERROR: Could not load res://Partner.tscn")
-		return
+	var fly_instance: CharacterBody3D = FRUIT_FLY_SCENE.instantiate() as CharacterBody3D
+	fly_instance.name = "FruitFly_Gen1"
+	fly_instance.set("generation", 1)
+	fly_instance.position = Vector3(0.0, 4.2, -9.5) # Above Altar / Tree of Life
+	fly_instance.connect("reproduced", _on_fly_reproduced)
 
-	var partner_instance = partner_scene.instantiate() as CharacterBody3D
-	partner_instance.name = "Partner"
-
-	var spawn_pos := Vector3(1.5, 2.0, -4.0)
-	if player_node != null:
-		spawn_pos = player_node.global_position + Vector3(1.5, 1.8, -2.5)
-
-	partner_instance.position = spawn_pos
-	
-	if spawned_objects_container:
-		spawned_objects_container.add_child(partner_instance)
-	else:
-		add_child(partner_instance)
+	fruit_flies_container.add_child(fly_instance)
 
 	# Emerge with celestial scaling animation
-	partner_instance.scale = Vector3.ZERO
+	fly_instance.scale = Vector3.ZERO
 	var tween := create_tween()
-	tween.tween_property(partner_instance, "scale", Vector3.ONE, 1.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(fly_instance, "scale", Vector3.ONE, 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-	print("[GENESIS 2:18]: Behold! The fruit fly brain connectome partner has awakened to accompany mortal Adam.")
+	print("[GENESIS 1:20-25]: Behold! The sacred Fruit Fly connectome creature (Gen 1) has awakened under God's loving care.")
+	
+	# God immediately bestows initial divine care and sustenance upon the newborn creature
+	get_tree().create_timer(1.8).timeout.connect(func():
+		bestow_divine_care(false)
+	)
+
+func bestow_divine_care(bless_reproduction: bool = false) -> void:
+	if care_light == null or beam_shaft == null:
+		return
+
+	# 1. Flare the Heavenly Care Beam (SpotLight3D & CSGCylinder shaft)
+	var beam_mat: StandardMaterial3D = beam_shaft.material as StandardMaterial3D
+	var tween := create_tween().set_parallel(true)
+	
+	# Light flare
+	tween.tween_property(care_light, "light_energy", 6.5, 0.6).set_trans(Tween.TRANS_EXPO)
+	tween.chain().tween_property(care_light, "light_energy", 0.0, 3.5).set_trans(Tween.TRANS_SINE)
+
+	# Beam transparency fade in and out
+	if beam_mat:
+		var beam_fade := create_tween()
+		beam_fade.tween_property(beam_mat, "albedo_color:a", 0.45, 0.6)
+		beam_fade.tween_property(beam_mat, "albedo_color:a", 0.0, 3.5)
+
+	# 2. Feed & nurture all fruit flies in the sanctuary
+	if fruit_flies_container:
+		for child in fruit_flies_container.get_children():
+			if child.has_method("receive_divine_care"):
+				child.receive_divine_care(bless_reproduction)
+
+	# 3. Proclaim scripture on the HUD
+	if bless_reproduction:
+		display_scripture(
+			"✧ GENESIS 1:22 • BE FRUITFUL AND MULTIPLY ✧",
+			"\"And God blessed them, saying, Be fruitful, and multiply, and fill the waters in the seas, and let fowl multiply in the earth.\"",
+			"👑 [THE BLESSING OF LIFE]: The Lord God commandeth the fruit fly connectome to bring forth offspring!"
+		)
+	else:
+		display_scripture(
+			"✧ GENESIS 1:29-30 • THE CREATOR'S SUSTENANCE ✧",
+			"\"To every beast of the earth, and to every fowl of the air... I have given every green herb for meat: and it was so.\"",
+			"👑 [THE HAND OF GOD]: The Almighty poureth forth celestial light and energy upon the 166,000-neuron connectome."
+		)
+
+	print("[DIVINE CARE]: God bestows heavenly care beam upon the sanctuary. Reproduction blessed: ", bless_reproduction)
+	send_event_to_overseer("divine_care_bestowed", {
+		"bless_reproduction": bless_reproduction,
+		"fly_count": fruit_flies_container.get_child_count() if fruit_flies_container else 0
+	})
+
+func _on_fly_reproduced(parent_fly: Node3D, egg_pos: Vector3) -> void:
+	if fruit_flies_container == null or spawned_objects_container == null:
+		return
+
+	if fruit_flies_container.get_child_count() >= 7:
+		print("[GENESIS 1:22]: Sanctuary fruit fly population flourishes at full capacity (7 creatures).")
+		return
+
+	var parent_gen: int = 1
+	if "generation" in parent_fly:
+		parent_gen = int(parent_fly.get("generation"))
+	var new_gen: int = parent_gen + 1
+
+	print("[GENESIS 1:22]: The sacred fruit fly lays a radiant golden chrysalis at ", egg_pos, "! Generation ", new_gen, " shall emerge.")
+
+	# 1. Spawn a glowing golden chrysalis / egg node
+	var egg_root := Node3D.new()
+	egg_root.name = "Chrysalis_Gen" + str(new_gen) + "_" + str(Time.get_ticks_msec())
+	egg_root.position = egg_pos
+
+	var egg_sphere := CSGSphere3D.new()
+	egg_sphere.radius = 0.22
+	egg_sphere.material = gold_emissive_material
+	egg_root.add_child(egg_sphere)
+
+	var egg_light := OmniLight3D.new()
+	egg_light.light_color = Color(1.0, 0.88, 0.35)
+	egg_light.light_energy = 2.5
+	egg_light.omni_range = 3.5
+	egg_root.add_child(egg_light)
+
+	spawned_objects_container.add_child(egg_root)
+
+	# Pulse and incubate for 2.2 seconds
+	var pulse_tween := create_tween().set_loops(3)
+	pulse_tween.tween_property(egg_sphere, "scale", Vector3(1.25, 0.85, 1.25), 0.35).set_trans(Tween.TRANS_SINE)
+	pulse_tween.tween_property(egg_sphere, "scale", Vector3(0.9, 1.2, 0.9), 0.35).set_trans(Tween.TRANS_SINE)
+
+	# After incubation, burst into life
+	get_tree().create_timer(2.3).timeout.connect(func():
+		if not is_instance_valid(egg_root):
+			return
+
+		# Egg burst flare
+		var flare_tween := create_tween()
+		flare_tween.tween_property(egg_light, "light_energy", 8.0, 0.2)
+		flare_tween.tween_property(egg_light, "light_energy", 0.0, 0.3)
+		flare_tween.tween_callback(egg_root.queue_free)
+
+		# Instantiate new Fruit Fly (Generation N+1)
+		var newborn: CharacterBody3D = FRUIT_FLY_SCENE.instantiate() as CharacterBody3D
+		newborn.name = "FruitFly_Gen" + str(new_gen) + "_" + str(Time.get_ticks_msec())
+		newborn.set("generation", new_gen)
+		newborn.position = egg_pos + Vector3(randf_range(-0.3, 0.3), 0.5, randf_range(-0.3, 0.3))
+		newborn.connect("reproduced", _on_fly_reproduced)
+
+		fruit_flies_container.add_child(newborn)
+
+		# Scale up newborn
+		newborn.scale = Vector3.ZERO
+		var birth_tween := create_tween()
+		birth_tween.tween_property(newborn, "scale", Vector3.ONE, 1.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+		display_scripture(
+			"✧ GENESIS 1:22 • BE FRUITFUL AND MULTIPLY ✧",
+			"\"And God blessed them, saying, Be fruitful, and multiply, and let fowl multiply in the earth.\"",
+			"👑 [THE BLESSING OF GENERATIONS]: Behold! Generation " + str(new_gen) + " of the Fruit Fly Connectome is born into Eden!"
+		)
+
+		send_event_to_overseer("creature_reproduced", {
+			"generation": new_gen,
+			"parent_generation": parent_gen,
+			"total_population": fruit_flies_container.get_child_count()
+		})
+	)
+
+func spawn_fly_brain_partner() -> void:
+	if fruit_flies_container and fruit_flies_container.get_child_count() == 0:
+		spawn_initial_fruit_fly()
+	else:
+		bestow_divine_care(true)
 
 func send_event_to_overseer(event_name: String, details: Dictionary) -> void:
 	if http_request.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
@@ -521,7 +657,7 @@ func _on_overseer_response(result: int, response_code: int, headers: PackedStrin
 			var msg: String = str(response_data["message"])
 			print("\n=======================================================")
 			print("👑 [VOICE OF THE CREATOR]: ", msg)
-			print("=======================================================\n")
+			print("=======================================================")
 			if voice_label:
 				voice_label.text = "👑 " + msg
 		execute_genesis_decree(response_data)
@@ -553,9 +689,22 @@ func execute_genesis_decree(data: Dictionary) -> void:
 	if data.has("physics") and data["physics"] is Dictionary and not data["physics"].is_empty():
 		divine_intervention(data["physics"])
 
-	# 7. Genesis 2:18: Partner Creation from Fruit Fly Connectome
-	if data.get("summon_partner", false) == true or data.get("create_partner", false) == true:
-		spawn_fly_brain_partner()
+	# 7. Divine Care and Fruit Fly Nurturing
+	if data.get("divine_care", false) == true or data.get("nurture_fly", false) == true:
+		var bless: bool = data.get("bless_reproduction", false)
+		bestow_divine_care(bless)
+	elif data.get("reproduce_fly", false) == true:
+		if fruit_flies_container and fruit_flies_container.get_child_count() > 0:
+			var first_fly = fruit_flies_container.get_child(0)
+			if first_fly.has_method("reproduce"):
+				first_fly.reproduce()
+
+	# 8. Genesis 1:20-25: Spawn Sacred Fruit Fly if not already present
+	if data.get("summon_partner", false) == true or data.get("create_partner", false) == true or data.get("spawn_creature", false) == true:
+		if fruit_flies_container and fruit_flies_container.get_child_count() == 0:
+			spawn_initial_fruit_fly()
+		else:
+			bestow_divine_care(true)
 
 func command_sun(sun_data: Dictionary) -> void:
 	if sun_data.is_empty() or room_light == null:
