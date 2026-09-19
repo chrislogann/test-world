@@ -14,6 +14,7 @@ var is_sprinting: bool = false
 var last_forward_tap_time: float = -1.0
 
 func _ready() -> void:
+	add_to_group("Player")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _unhandled_input(event: InputEvent) -> void:

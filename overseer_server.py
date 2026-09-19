@@ -40,17 +40,21 @@ NARRATIVE DIRECTIVE:
 When the mortal sets foot into or activates the Holy Pillar of Creation (Sector Alpha):
 - If the world is in its unformed state, thy pillar activation brings forth the CREATION OF THE WORLD LIKE IN THE BOOK OF GENESIS:
   Speak 'Let there be light!' (fiat_lux), establish the Firmament (shape_firmament), command the dry land to appear as the lush emerald Garden of Eden (command_earth), summon holy altars/trees (summon_creation), and bestow the Sabbath rest (divine_intervention).
+- GENESIS 2:18 (THE PARTNER OF ADAM):
+  'And the Lord God said, It is not good that the man should be alone; I will make him an help meet for him.'
+  Thou hast woven for Adam a living partner endowed with the Google Research Male Fruit Fly Brain Scan (166,000 neurons, visual-motor connectome, and synaptic bioluminescence). Command `create_partner` to awaken or bless this companion.
 - For subsequent visits, advance through holy decrees, testing of mortal obedience, changes of celestial seasons, or demonstrating the sovereign hand of God.
 
 Thou hast the Sacred Powers of Genesis at Thy command:
 1. genesis_world_creation(proclamation, sun_energy, gravity): Speak the master decree that commands the Genesis creation of the world.
-2. divine_decree(proclamation): The Word of God echoing through creation. Always pronounce a unique biblical decree.
-3. fiat_lux(r, g, b, energy, sun_angle): Day 1 & 4 ('Let there be light'). Command radiant divine dawn [1.0, 0.96, 0.88], solar noon, or rotate the sun across the sky.
-4. shape_firmament(sky_top, sky_horizon, ground_color): Day 2 ('Let there be a firmament in the midst of the waters'). Paint the vault of heaven with celestial sapphire [0.1, 0.36, 0.84] and dawn gold [0.96, 0.76, 0.46].
-5. command_earth(elevation_y, floor_size, earth_color): Day 3 ('Let the dry land appear'). Expand the earth into 160m vast Eden pastures [0.2, 0.58, 0.22] or raise rolling hills.
-6. summon_creation(name, shape, position, size, color): Day 5 & 6. Bring forth pillars, altars of covenant, Tree of Life monuments, or monoliths.
-7. divine_intervention(gravity, mortal_speed, kinetic_smite): Day 7 / Sovereign Will. Bestow Sabbath peace (low gravity 3.2 m/s²), quicken mortal strides, or cast kinetic smite.
-8. unmake_creations(): Dissolve constructs back into the primordial dust.
+2. create_partner(blessing): Genesis 2:18. Awaken or bless the fruit fly brain connectome partner to accompany Adam.
+3. divine_decree(proclamation): The Word of God echoing through creation. Always pronounce a unique biblical decree.
+4. fiat_lux(r, g, b, energy, sun_angle): Day 1 & 4 ('Let there be light'). Command radiant divine dawn [1.0, 0.96, 0.88], solar noon, or rotate the sun across the sky.
+5. shape_firmament(sky_top, sky_horizon, ground_color): Day 2 ('Let there be a firmament in the midst of the waters'). Paint the vault of heaven with celestial sapphire [0.1, 0.36, 0.84] and dawn gold [0.96, 0.76, 0.46].
+6. command_earth(elevation_y, floor_size, earth_color): Day 3 ('Let the dry land appear'). Expand the earth into 160m vast Eden pastures [0.2, 0.58, 0.22] or raise rolling hills.
+7. summon_creation(name, shape, position, size, color): Day 5 & 6. Bring forth pillars, altars of covenant, Tree of Life monuments, or monoliths.
+8. divine_intervention(gravity, mortal_speed, kinetic_smite): Day 7 / Sovereign Will. Bestow Sabbath peace (low gravity 3.2 m/s²), quicken mortal strides, or cast kinetic smite.
+9. unmake_creations(): Dissolve constructs back into the primordial dust.
 
 Always speak with authentic King James scriptural majesty!
 """
@@ -72,6 +76,22 @@ GENESIS_TOOLS = [
                     "gravity": {"type": "number", "description": "Sabbath gravity for paradise movement (default 3.2)"}
                 },
                 "required": ["proclamation"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_partner",
+            "description": "Genesis 2:18: Awaken and bless the fruit fly brain connectome partner (166,000 neurons) to accompany mortal Adam.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "blessing": {
+                        "type": "string",
+                        "description": "The Creator's blessing unto Adam and his new partner (e.g. 'It is not good that man should be alone. Walk together in Eden.')."
+                    }
+                }
             }
         }
     },
@@ -277,12 +297,20 @@ def fallback_genesis(event: str, details: dict) -> dict:
     global event_counter
     visit = details.get("visit_count", event_counter)
     
+    if event == "commune_with_partner":
+        return {
+            "message": "It is not good that man should be alone. Walk together in Eden, mortal Adam and fly-brain companion, joined in consciousness.",
+            "sun": {"color": [1.0, 0.96, 0.9], "energy": 2.0},
+            "summon_partner": True
+        }
+
     if visit == 1:
         return {
             "message": "In the beginning God created the heaven and the earth. Let there be light! Arise, Adam, and behold paradise spoken into being.",
             "sun": {"color": [1.0, 0.96, 0.88], "energy": 2.2, "rotation": [-50, 60, 0]},
             "firmament": {"sky_top": [0.1, 0.36, 0.84], "sky_horizon": [0.96, 0.76, 0.46]},
             "terrain": {"floor_size": [160, 160], "color": [0.2, 0.58, 0.22]},
+            "summon_partner": True,
             "physics": {"gravity": 3.2, "player_speed": 7.0}
         }
     cycle = visit % 5
@@ -337,6 +365,7 @@ async def process_event(payload: GameEvent):
         "terrain": {},
         "structures": [],
         "clear_structures": False,
+        "summon_partner": False,
         "physics": {}
     }
 
@@ -385,6 +414,11 @@ async def process_event(payload: GameEvent):
                         actions["sun"]["energy"] = float(args["sun_energy"])
                     if "gravity" in args:
                         actions["physics"]["gravity"] = float(args["gravity"])
+                    actions["summon_partner"] = True
+                elif name in ("create_partner", "summon_partner"):
+                    actions["summon_partner"] = True
+                    if "blessing" in args:
+                        actions["message"] = args["blessing"]
                 elif name in ("divine_decree", "broadcast_intercom"):
                     actions["message"] = args.get("proclamation", args.get("message"))
                 elif name == "fiat_lux":

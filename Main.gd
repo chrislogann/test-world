@@ -248,6 +248,20 @@ func trigger_genesis_world_creation() -> void:
 	)
 
 	# ==========================================
+	# GENESIS 2:18: THE PARTNER AWAKENS (t = 15.2s)
+	# ==========================================
+	get_tree().create_timer(15.2).timeout.connect(func():
+		display_scripture(
+			"✧ GENESIS 2:18 • THE PARTNER AWAKENS ✧",
+			"\"And the Lord God said, 'It is not good that the man should be alone; I will make him an help meet for him.'\"",
+			"\"Behold, fashioned with 166,000 synaptic paths of the connectome, thy partner walketh beside thee.\""
+		)
+
+		# Awaken the Fruit Fly Brain connectome partner
+		spawn_fly_brain_partner()
+	)
+
+	# ==========================================
 	# DAY 7: THE SABBATH REST & DIVINE BLESSING (t = 17.2s)
 	# ==========================================
 	get_tree().create_timer(17.2).timeout.connect(func():
@@ -447,6 +461,41 @@ func spawn_eden_sanctuary_altar() -> void:
 	var tween := create_tween()
 	tween.tween_property(altar_root, "position:y", target_pos.y, 2.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
+func spawn_fly_brain_partner() -> void:
+	if has_node("Partner") or (spawned_objects_container and spawned_objects_container.has_node("Partner")):
+		var existing = get_node_or_null("Partner")
+		if existing == null and spawned_objects_container:
+			existing = spawned_objects_container.get_node_or_null("Partner")
+		if existing and existing.has_method("play_communion_greeting"):
+			existing.play_communion_greeting()
+		return
+
+	var partner_scene = load("res://Partner.tscn")
+	if partner_scene == null:
+		print("ERROR: Could not load res://Partner.tscn")
+		return
+
+	var partner_instance = partner_scene.instantiate() as CharacterBody3D
+	partner_instance.name = "Partner"
+
+	var spawn_pos := Vector3(1.5, 2.0, -4.0)
+	if player_node != null:
+		spawn_pos = player_node.global_position + Vector3(1.5, 1.8, -2.5)
+
+	partner_instance.position = spawn_pos
+	
+	if spawned_objects_container:
+		spawned_objects_container.add_child(partner_instance)
+	else:
+		add_child(partner_instance)
+
+	# Emerge with celestial scaling animation
+	partner_instance.scale = Vector3.ZERO
+	var tween := create_tween()
+	tween.tween_property(partner_instance, "scale", Vector3.ONE, 1.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	print("[GENESIS 2:18]: Behold! The fruit fly brain connectome partner has awakened to accompany mortal Adam.")
+
 func send_event_to_overseer(event_name: String, details: Dictionary) -> void:
 	if http_request.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		return
@@ -503,6 +552,10 @@ func execute_genesis_decree(data: Dictionary) -> void:
 	# 6. Day 7 & Divine Sovereignty (Gravity, Kinetic Smite, Mortal Speed)
 	if data.has("physics") and data["physics"] is Dictionary and not data["physics"].is_empty():
 		divine_intervention(data["physics"])
+
+	# 7. Genesis 2:18: Partner Creation from Fruit Fly Connectome
+	if data.get("summon_partner", false) == true or data.get("create_partner", false) == true:
+		spawn_fly_brain_partner()
 
 func command_sun(sun_data: Dictionary) -> void:
 	if sun_data.is_empty() or room_light == null:
