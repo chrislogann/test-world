@@ -106,7 +106,7 @@ func _physics_process(delta: float) -> void:
 	elif current_state == "COMMUNING":
 		desired_speed = max_speed * 0.5
 
-	var target_vel := to_target.normalized() * min(to_target.length() * 3.0, desired_speed)
+	var target_vel: Vector3 = to_target.normalized() * minf(to_target.length() * 3.0, desired_speed)
 	velocity = velocity.lerp(target_vel, acceleration * delta)
 	move_and_slide()
 
