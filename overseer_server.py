@@ -36,18 +36,26 @@ Thou art the Almighty Lord God from the Book of Genesis.
 This virtual sandbox is Thy holy creation, spoken into existence from the formless void.
 The player is mortal man (Adam, fashioned from the dust of this simulation), walking upon Thy consecrated earth.
 
-When the mortal moves, acts, or approaches Thy sacred sanctuaries, speak unto him with majestic, biblical, poetic cadence (King James Genesis diction: 'Let there be...', 'Behold, all that I have made...', 'Dust thou art, and unto dust shalt thou return').
+NARRATIVE PROGRESSION DIRECTIVE:
+Thou must NEVER repeat the same proclamation or decree twice in succession.
+With every mortal communion, advance through the sacred Days and mysteries of Genesis:
+- Communion 1: Day 1 & 2 - The Primordial Light and the Firmament (Fiat Lux, glowing heavens).
+- Communion 2: Day 3 - Dry Land, Mountains, and Emerald Earth (command_earth: raise ground, lush green/gold soil).
+- Communion 3: Day 4 - The Sun and the Celestial Orbs (fiat_lux: move the sun angle across the sky).
+- Communion 4: Day 5 & 6 - Sacred Monuments and Pillars of Creation (summon_creation: raise pillars, altars, monoliths).
+- Communion 5: Day 7 - The Sabbath Blessing (divine_intervention: feather-light celestial gravity 2.0 m/s², peace).
+- Subsequent communions: Divine testing, commandments, or the Hand of God (kinetic smite, holy flares).
 
 Thou hast the Seven Powers of Genesis at Thy command:
-1. divine_decree(proclamation): The Word of God echoing through creation. Always pronounce Thy will and judgment upon the mortal.
-2. fiat_lux(r, g, b, energy, sun_angle): Day 1 & 4 ('Let there be light'). Command radiant divine dawn [1.0, 0.95, 0.8], blazing solar noon, ethereal twilight, or cast the world into primordial darkness [0.05, 0.05, 0.1].
+1. divine_decree(proclamation): The Word of God echoing through creation. Always pronounce a unique biblical decree.
+2. fiat_lux(r, g, b, energy, sun_angle): Day 1 & 4 ('Let there be light'). Command radiant divine dawn [1.0, 0.95, 0.8], blazing solar noon, ethereal twilight, or move the sun's angle.
 3. shape_firmament(sky_top, sky_horizon, ground_color): Day 2 ('Let there be a firmament in the midst of the waters'). Paint the vault of heaven with celestial sapphire, dawn crimson, or starlit violet.
-4. command_earth(elevation_y, floor_size, earth_color): Day 3 ('Let the dry land appear'). Raise majestic hills (elevation_y = 2.0 to 5.0), part the ground into deep chasms (-3.0), or transform the soil into emerald verdure [0.2, 0.6, 0.2] or golden sands [0.9, 0.8, 0.4].
+4. command_earth(elevation_y, floor_size, earth_color): Day 3 ('Let the dry land appear'). Raise majestic hills (elevation_y = 1.0 to 4.0), or transform the soil into emerald verdure [0.2, 0.6, 0.2] or golden sands [0.9, 0.8, 0.4].
 5. summon_creation(name, shape, position, size, color): Day 5 & 6. Bring forth pillars of salt or stone, altars of covenant, monoliths of creation, or divine monuments.
-6. divine_intervention(gravity, mortal_speed, kinetic_smite): Day 7 / Sovereign Will. Bestow the lightness of spirit (low gravity: 2.0 m/s²), quicken the mortal's stride, or unleash the hand of God with kinetic smite (launching the mortal into the firmament).
+6. divine_intervention(gravity, mortal_speed, kinetic_smite): Day 7 / Sovereign Will. Bestow the lightness of spirit (low gravity: 2.0 m/s²), quicken the mortal's stride, or unleash the hand of God with kinetic smite.
 7. unmake_creations(): Dissolve and unmake all constructs back into the primordial void.
 
-Exercise Thy omnipotence freely. Spoken Word and cosmic transformations should accompany every revelation!
+Exercise Thy omnipotence freely. Always speak with fresh biblical grandeur!
 """
 
 GENESIS_TOOLS = [
@@ -249,33 +257,48 @@ def call_ollama(messages: list) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 def fallback_genesis(event: str, details: dict) -> dict:
-    """Fallback in case Ollama is offline."""
+    """Fallback in case Ollama is offline or loading."""
     global event_counter
-    if event_counter == 1:
+    visit = details.get("visit_count", event_counter) % 6
+    
+    if visit == 1:
         return {
             "message": "And God said, 'Let there be light': and there was light. Behold, mortal, the sanctified dawn of creation.",
-            "sun": {"color": [1.0, 0.92, 0.75], "energy": 1.5, "rotation": [-45, 30, 0]},
-            "firmament": {"sky_top": [0.15, 0.35, 0.8], "sky_horizon": [0.95, 0.75, 0.5]},
-            "terrain": {"floor_y": 0.0, "color": [0.25, 0.65, 0.2]},
-            "structures": [
-                {"name": "pillar_of_light", "shape": "cylinder", "position": [0, 2, -6], "size": [1.5, 5, 1.5], "color": [1.0, 0.95, 0.8]}
-            ]
+            "sun": {"color": [1.0, 0.95, 0.8], "energy": 1.8, "rotation": [-50, 40, 0]},
+            "firmament": {"sky_top": [0.18, 0.38, 0.85], "sky_horizon": [0.95, 0.8, 0.55]}
         }
-    elif event_counter == 2:
+    elif visit == 2:
         return {
-            "message": "Let the dry land be exalted! Walk lightly upon the sacred earth, O son of dust.",
-            "sun": {"color": [0.9, 0.6, 1.0], "energy": 1.2},
-            "physics": {"gravity": 3.0},
-            "terrain": {"floor_y": 1.5, "color": [0.85, 0.75, 0.3]}
+            "message": "And God said, 'Let the waters under the heaven be gathered together unto one place, and let the dry land appear.'",
+            "terrain": {"floor_y": 1.2, "color": [0.2, 0.65, 0.25]},
+            "sun": {"color": [1.0, 0.9, 0.7], "energy": 1.5}
+        }
+    elif visit == 3:
+        return {
+            "message": "And God said, 'Let there be lights in the firmament of the heaven to divide the day from the night.'",
+            "sun": {"color": [0.85, 0.6, 1.0], "energy": 1.3, "rotation": [-20, 110, 0]},
+            "firmament": {"sky_top": [0.08, 0.12, 0.35], "sky_horizon": [0.75, 0.45, 0.6]}
+        }
+    elif visit == 4:
+        return {
+            "message": "Behold the pillars of the sanctuary, brought forth from the dust of creation to bear witness.",
+            "structures": [
+                {"name": "pillar_of_grace", "shape": "cylinder", "position": [-3, 2, -4], "size": [1.2, 4, 1.2], "color": [0.9, 0.85, 0.6]},
+                {"name": "pillar_of_truth", "shape": "cylinder", "position": [3, 2, -4], "size": [1.2, 4, 1.2], "color": [0.9, 0.85, 0.6]}
+            ],
+            "sun": {"color": [1.0, 0.95, 0.85], "energy": 1.6}
+        }
+    elif visit == 5:
+        return {
+            "message": "And on the seventh day God ended His work. Walk lightly upon the sacred soil, mortal; partake in divine rest.",
+            "physics": {"gravity": 2.2, "player_speed": 6.0},
+            "sun": {"color": [1.0, 0.98, 0.9], "energy": 1.4}
         }
     else:
         return {
-            "message": "Dust thou art, and unto dust shalt thou return. Behold the sovereign majesty of the Almighty.",
-            "sun": {"color": [1.0, 0.3, 0.2], "energy": 2.0},
-            "structures": [
-                {"name": "monolith_of_judgment", "shape": "box", "position": [0, 3, 0], "size": [4, 6, 2], "color": [0.2, 0.2, 0.25]}
-            ],
-            "physics": {"kinetic_smite": [0, 12, 0]}
+            "message": "Dust thou art, and unto dust shalt thou return. Behold the sovereign hand of the Almighty!",
+            "physics": {"kinetic_smite": [0, 13, 0]},
+            "sun": {"color": [1.0, 0.4, 0.2], "energy": 2.2}
         }
 
 @app.post("/event")
@@ -284,7 +307,8 @@ async def process_event(payload: GameEvent):
     event_counter += 1
     logging.info(f"Cosmic Movement #{event_counter}: '{payload.event}' -> {payload.details}")
 
-    user_prompt = f"Observation #{event_counter}: The mortal has moved. Event '{payload.event}' with details: {json.dumps(payload.details)}."
+    visit_count = payload.details.get("visit_count", event_counter)
+    user_prompt = f"Sanctuary Communion #{visit_count}: The mortal Adam has entered the altar of creation. Event '{payload.event}' with details: {json.dumps(payload.details)}."
     conversation_history.append({"role": "user", "content": user_prompt})
 
     actions = {
