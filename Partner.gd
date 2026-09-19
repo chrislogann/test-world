@@ -15,29 +15,30 @@ extends CharacterBody3D
 @onready var central_brain: CSGSphere3D = $Visuals/Connectome/CentralBrain
 @onready var left_optic: CSGSphere3D = $Visuals/Connectome/LeftOpticLobe
 @onready var right_optic: CSGSphere3D = $Visuals/Connectome/RightOpticLobe
+@onready var http_connectome: HTTPRequest = $ConnectomeHTTP
+
+const CONNECTOME_URL: String = "http://127.0.0.1:8000/connectome/step"
 
 var target_player: CharacterBody3D = null
 var current_state: String = "INITIALIZING"
 var time_alive: float = 0.0
-var next_thought_time: float = 0.0
-var thought_index: int = 0
+var next_connectome_query: float = 0.0
 var orbit_angle: float = 0.0
 
-# Scientific connectome telemetry from Google Research male fruit fly brain map
-var connectome_thoughts: Array[String] = [
-	"✧ R1-R6 Optic Lobes: Tracking Mortal Adam ✧",
-	"✧ 166,000 Neurons Active: Central Complex Synchronized ✧",
-	"✧ DNg13 Descending Motor Neurons: Thrust at 42 Hz ✧",
-	"✧ AOTU012 Sensory Circuit: Attuned to the Garden of Eden ✧",
-	"✧ LoVP92 Dimorphic Pathway: Partner Communion Active ✧",
-	"✧ Ventral Nerve Cord: Flight Stability Maintained ✧",
-	"✧ Genesis 2:18: Not good for man to be alone; partner here ✧",
-	"✧ Synaptic Activity Peak: Communing with Creator & Adam ✧"
-]
+# Live Neuprint Telemetry State (Male CNS version 1.0: 166,000 neurons, 125M synapses)
+var live_v_membrane: float = -70.0
+var live_spike_rate: float = 38.0
+var live_wing_freq: float = 40.0
+var live_dng13_thrust: float = 1.2
+var live_synaptic_intensity: float = 2.2
+var active_circuit_name: String = "R1-R6 -> AOTU012 -> LoVP92 -> DNg13"
+var neuprint_dataset_name: String = "male-cns:v1.0"
 
 func _ready() -> void:
 	find_player()
-	thought_label.text = "✧ 166,000 Connectome Synapses Awakening... ✧"
+	if http_connectome:
+		http_connectome.request_completed.connect(_on_connectome_response)
+	thought_label.text = "✧ Neuprint [male-cns:v1.0]: 166k Neurons | 125M Synapses ✧\n✧ Initializing Leaky Integrate-and-Fire Model... ✧"
 	setup_wing_materials()
 
 func find_player() -> void:
@@ -68,13 +69,14 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var dist_to_player: float = global_position.distance_to(target_player.global_position)
+	var adam_speed: float = target_player.velocity.length()
 	
 	# Determine Connectome Behavioral State
 	if dist_to_player < 2.0:
 		current_state = "COMMUNING"
 	elif dist_to_player > 14.0:
 		current_state = "RUSHING_TO_ADAM"
-	elif target_player.velocity.length() > 1.5:
+	elif adam_speed > 1.5:
 		current_state = "FOLLOWING"
 	else:
 		current_state = "ORBITING"
@@ -100,7 +102,7 @@ func _physics_process(delta: float) -> void:
 
 	# Steer toward hover position using DNg13 descending motor dynamics
 	var to_target: Vector3 = target_hover_pos - global_position
-	var desired_speed: float = max_speed
+	var desired_speed: float = max_speed * live_dng13_thrust
 	if current_state == "RUSHING_TO_ADAM":
 		desired_speed = max_speed * 1.8
 	elif current_state == "COMMUNING":
@@ -120,22 +122,23 @@ func _physics_process(delta: float) -> void:
 		var target_basis: Basis = Transform3D().looking_at(look_target - cur_pos, Vector3.UP).basis
 		basis = basis.slerp(target_basis, 6.0 * delta)
 
-	# Biological Wing Flutter (35-45 Hz wing beat frequency)
+	# Biological Wing Flutter driven by DNg13 descending motor frequency
 	animate_wings(delta)
 
 	# Neural Synaptic Radiance & Holographic Rotation
 	animate_neural_synapses(delta)
 
-	# Cycle Connectome Thoughts
-	if time_alive >= next_thought_time:
-		cycle_thought(dist_to_player)
+	# Stream 3D Sensory Data into Neuprint LIF Connectome Model
+	if time_alive >= next_connectome_query:
+		next_connectome_query = time_alive + 0.25 # 4 Hz telemetry stream
+		stream_sensory_to_connectome(dist_to_player, adam_speed)
 
 func animate_wings(delta: float) -> void:
 	if left_wing == null or right_wing == null:
 		return
 		
-	var flutter_freq: float = 45.0 if current_state != "COMMUNING" else 22.0
-	var wing_angle: float = sin(time_alive * flutter_freq) * 0.45
+	var freq: float = live_wing_freq if current_state != "COMMUNING" else (live_wing_freq * 0.5)
+	var wing_angle: float = sin(time_alive * freq) * 0.45
 	
 	left_wing.rotation.z = wing_angle
 	right_wing.rotation.z = -wing_angle
@@ -148,7 +151,7 @@ func animate_neural_synapses(delta: float) -> void:
 
 	# Synaptic action potentials (pulse in light energy)
 	if synaptic_light != null:
-		var pulse: float = 2.2 + sin(time_alive * 6.0) * 0.8 + sin(time_alive * 14.0) * 0.4
+		var pulse: float = live_synaptic_intensity + sin(time_alive * 8.0) * 0.4
 		synaptic_light.light_energy = pulse
 
 	# Optic lobe colors shift during intense tracking
@@ -157,19 +160,59 @@ func animate_neural_synapses(delta: float) -> void:
 		var glow: float = 0.7 + sin(time_alive * 8.0) * 0.3
 		optic_mat.emission_energy_multiplier = glow
 
-func cycle_thought(dist_to_player: float) -> void:
-	next_thought_time = time_alive + 4.5
-	thought_index = (thought_index + 1) % connectome_thoughts.size()
-	
-	var thought: String = connectome_thoughts[thought_index]
-	if current_state == "COMMUNING":
-		thought = "✧ LoVP92 Dimorphic Love-Song: Standing beside Adam ✧"
-	
+func stream_sensory_to_connectome(dist_to_player: float, adam_speed: float) -> void:
+	if http_connectome == null or http_connectome.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		return
+
+	var heading_deg: float = 0.0
+	if target_player != null:
+		var to_adam: Vector3 = (target_player.global_position - global_position).normalized()
+		var forward: Vector3 = -global_transform.basis.z
+		heading_deg = rad_to_deg(forward.angle_to(to_adam))
+
+	var payload: Dictionary = {
+		"dist_to_adam": dist_to_player,
+		"adam_speed": adam_speed,
+		"light_energy": 2.2,
+		"heading_angle": heading_deg
+	}
+	var json_data: String = JSON.stringify(payload)
+	var headers: PackedStringArray = ["Content-Type: application/json"]
+	http_connectome.request(CONNECTOME_URL, headers, HTTPClient.METHOD_POST, json_data)
+
+func _on_connectome_response(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+	if response_code != 200:
+		return
+
+	var text: String = body.get_string_from_utf8()
+	var data = JSON.parse_string(text)
+	if not (data is Dictionary):
+		return
+
+	live_v_membrane = safe_float(data.get("v_membrane_mv"), -70.0)
+	live_spike_rate = safe_float(data.get("spike_rate_hz"), 38.0)
+	live_wing_freq = safe_float(data.get("wing_freq_hz"), 40.0)
+	live_dng13_thrust = safe_float(data.get("dng13_thrust"), 1.2)
+	live_synaptic_intensity = safe_float(data.get("synaptic_intensity"), 2.2)
+	active_circuit_name = str(data.get("active_circuit", "R1-R6 -> LoVP92 -> DNg13"))
+	neuprint_dataset_name = str(data.get("dataset", "male-cns:v1.0"))
+
+	# Update live 3D billboard text with real Neuprint connectome telemetry
 	if thought_label:
-		thought_label.text = thought
-		var tween: Tween = create_tween()
-		thought_label.modulate = Color(1.5, 1.5, 1.2, 1.0)
-		tween.tween_property(thought_label, "modulate", Color(1.0, 1.0, 1.0, 0.95), 0.8)
+		var line1: String = "✧ Neuprint [" + neuprint_dataset_name + "]: 166,000 Neurons | 125M Synapses ✧"
+		var line2: String = "✧ LIF Vm: " + str(live_v_membrane) + " mV | Spikes: " + str(live_spike_rate) + " Hz | Circuit: " + active_circuit_name + " ✧"
+		thought_label.text = line1 + "\n" + line2
+
+func safe_float(val, default_val: float = 0.0) -> float:
+	if val == null:
+		return default_val
+	if val is float or val is int:
+		return float(val)
+	if val is String:
+		var s: String = val as String
+		if s.is_valid_float():
+			return s.to_float()
+	return default_val
 
 func play_communion_greeting() -> void:
 	# Perform aerial loop when greeted
@@ -177,4 +220,4 @@ func play_communion_greeting() -> void:
 	tween.tween_property(self, "position:y", position.y + 1.8, 0.4).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(self, "rotation:z", deg_to_rad(360), 0.6)
 	if thought_label:
-		thought_label.text = "✧ Partner Communion: 'It is good that we walk together in Eden.' ✧"
+		thought_label.text = "✧ Neuprint [male-cns:v1.0]: 125 Million Synaptic Pathways Harmonized ✧\n✧ 'It is good that we walk together in Eden.' ✧"

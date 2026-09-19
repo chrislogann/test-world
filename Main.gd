@@ -248,13 +248,13 @@ func trigger_genesis_world_creation() -> void:
 	)
 
 	# ==========================================
-	# GENESIS 2:18: THE PARTNER AWAKENS (t = 15.2s)
+	# GENESIS 2:18: NEUPRINT MALE-CNS:V1.0 AWAKENS (t = 15.2s)
 	# ==========================================
 	get_tree().create_timer(15.2).timeout.connect(func():
 		display_scripture(
-			"✧ GENESIS 2:18 • THE PARTNER AWAKENS ✧",
-			"\"And the Lord God said, 'It is not good that the man should be alone; I will make him an help meet for him.'\"",
-			"\"Behold, fashioned with 166,000 synaptic paths of the connectome, thy partner walketh beside thee.\""
+			"✧ GENESIS 2:18 • NEUPRINT [MALE-CNS:V1.0] AWAKENS ✧",
+			"\"166,000 Neurons & 125 Million Synaptic Connections (Google & Janelia Research)\"",
+			"\"3D creation sensory inputs fed directly into the fruit fly connectome.\""
 		)
 
 		# Awaken the Fruit Fly Brain connectome partner

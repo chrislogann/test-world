@@ -13,6 +13,10 @@ background_mode = 2
 sky = SubResource("Sky_sh265")
 ambient_light_source = 3
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.42, 0.44, 0.46, 1)
+roughness = 0.9
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_0xm2m"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aura"]
@@ -41,10 +45,6 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 shadow_color = Color(0, 0, 0, 0.45)
 shadow_size = 8
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.42, 0.44, 0.46, 1)
-roughness = 0.9
 
 [node name="Main" type="Node3D" unique_id=1214621733]
 script = ExtResource("1_uu6xs")
@@ -184,4 +184,3 @@ autowrap_mode = 3
 
 [connection signal="body_entered" from="SectorAlphaTrigger" to="." method="_on_sector_alpha_trigger_body_entered"]
 [connection signal="body_exited" from="SectorAlphaTrigger" to="." method="_on_sector_alpha_trigger_body_exited"]
-

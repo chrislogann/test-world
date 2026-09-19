@@ -6,6 +6,7 @@ import urllib.request
 import urllib.error
 from fastapi import FastAPI
 from pydantic import BaseModel
+from neuprint_connectome import connectome_instance
 
 try:
     import ollama
@@ -347,6 +348,22 @@ def fallback_genesis(event: str, details: dict) -> dict:
             "physics": {"gravity": 3.2, "player_speed": 7.0},
             "sun": {"color": [1.0, 0.95, 0.85], "energy": 2.0}
         }
+
+class ConnectomeSensoryInput(BaseModel):
+    dist_to_adam: float = 3.0
+    adam_speed: float = 0.0
+    light_energy: float = 2.0
+    heading_angle: float = 0.0
+
+@app.post("/connectome/step")
+async def step_connectome(sensory: ConnectomeSensoryInput):
+    """Processes real-time 3D sensory inputs through the Neuprint Male CNS v1.0 connectome."""
+    return connectome_instance.step(sensory.dict())
+
+@app.get("/connectome/info")
+async def get_connectome_info():
+    """Returns metadata on the Neuprint Male CNS v1.0 dataset."""
+    return connectome_instance.query_connectome_summary()
 
 @app.post("/event")
 async def process_event(payload: GameEvent):
