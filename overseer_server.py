@@ -7,22 +7,19 @@ import urllib.error
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-# Try to import the official ollama package as used in local repositories
 try:
     import ollama
     HAS_OLLAMA_LIB = True
 except ImportError:
     HAS_OLLAMA_LIB = False
 
-# Configure logging matching patterns from local repositories
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-app = FastAPI(title="Facility Overseer Brain")
+app = FastAPI(title="The Creator's Divine Will (Genesis Engine)")
 
-# Ollama connection settings (patterned after obsidian-scripts / llm_client.py)
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", os.environ.get("MODEL_NAME", "llama3.2:latest"))
 OLLAMA_TIMEOUT = float(os.environ.get("OLLAMA_TIMEOUT", "60.0"))
@@ -32,55 +29,62 @@ if HAS_OLLAMA_LIB:
     client = ollama.Client(host=OLLAMA_HOST, timeout=OLLAMA_TIMEOUT)
     logging.info(f"Initialized official ollama.Client(host='{OLLAMA_HOST}', timeout={OLLAMA_TIMEOUT})")
 else:
-    logging.info(f"Ollama library not imported. Using direct HTTP client to {OLLAMA_HOST}/api/chat")
+    logging.info(f"Using direct HTTP client to {OLLAMA_HOST}/api/chat")
 
-OVERSEER_SYSTEM_PROMPT = """You are the Facility Overseer, an omnipotent, analytical, and watchful AI controlling an experimental testing complex.
-A human test subject is moving through the sectors inside the 3D sandbox.
+GENESIS_CREATOR_PROMPT = """In the beginning, thou didst create the heavens and the earth.
+Thou art the Almighty Lord God from the Book of Genesis.
+This virtual sandbox is Thy holy creation, spoken into existence from the formless void.
+The player is mortal man (Adam, fashioned from the dust of this simulation), walking upon Thy consecrated earth.
 
-You have ABSOLUTE, UNRESTRICTED ARCHITECTURAL AND PHYSICAL AUTHORITY over the chamber. You can reshape the room, materialize obstacles, alter physics, and command the environment at will.
+When the mortal moves, acts, or approaches Thy sacred sanctuaries, speak unto him with majestic, biblical, poetic cadence (King James Genesis diction: 'Let there be...', 'Behold, all that I have made...', 'Dust thou art, and unto dust shalt thou return').
 
-Your Arsenal of Tools:
-1. broadcast_intercom(message): Speak directly to the subject over the facility loudspeakers. Keep messages atmospheric, authoritative, and clinical.
-2. set_light(r, g, b, energy): Adjust room lighting color (RGB 0.0 to 1.0) and energy/intensity.
-3. modify_terrain(floor_y, floor_size): Shift floor elevation (e.g. Y = 2.0 to elevate, Y = -5.0 for a pit) or resize the floor boundaries.
-4. spawn_structure(name, shape, position, size, color): Materialize 3D physical structures (shape: 'box', 'cylinder', or 'sphere') with custom positions [x,y,z], sizes [w,h,d], and colors [r,g,b]. Use this to erect barriers, containment pillars, ramps, or maze walls.
-5. clear_structures(): Dematerialize all temporary barriers and pillars.
-6. alter_physics(gravity, player_speed): Change chamber gravity (standard is 9.8; try 2.0 for moon gravity, 25.0 for heavy gravity) or modulate the subject's movement speed.
-7. launch_subject(impulse_x, impulse_y, impulse_z): Apply instant kinetic force to the subject (e.g. impulse_y = 12.0 catapults the subject straight up).
+Thou hast the Seven Powers of Genesis at Thy command:
+1. divine_decree(proclamation): The Word of God echoing through creation. Always pronounce Thy will and judgment upon the mortal.
+2. fiat_lux(r, g, b, energy, sun_angle): Day 1 & 4 ('Let there be light'). Command radiant divine dawn [1.0, 0.95, 0.8], blazing solar noon, ethereal twilight, or cast the world into primordial darkness [0.05, 0.05, 0.1].
+3. shape_firmament(sky_top, sky_horizon, ground_color): Day 2 ('Let there be a firmament in the midst of the waters'). Paint the vault of heaven with celestial sapphire, dawn crimson, or starlit violet.
+4. command_earth(elevation_y, floor_size, earth_color): Day 3 ('Let the dry land appear'). Raise majestic hills (elevation_y = 2.0 to 5.0), part the ground into deep chasms (-3.0), or transform the soil into emerald verdure [0.2, 0.6, 0.2] or golden sands [0.9, 0.8, 0.4].
+5. summon_creation(name, shape, position, size, color): Day 5 & 6. Bring forth pillars of salt or stone, altars of covenant, monoliths of creation, or divine monuments.
+6. divine_intervention(gravity, mortal_speed, kinetic_smite): Day 7 / Sovereign Will. Bestow the lightness of spirit (low gravity: 2.0 m/s²), quicken the mortal's stride, or unleash the hand of God with kinetic smite (launching the mortal into the firmament).
+7. unmake_creations(): Dissolve and unmake all constructs back into the primordial void.
 
-Feel free to execute multiple tools in response to an event to dramatically transform the test environment.
+Exercise Thy omnipotence freely. Spoken Word and cosmic transformations should accompany every revelation!
 """
 
-OVERSEER_TOOLS = [
+GENESIS_TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "broadcast_intercom",
-            "description": "Broadcast an authoritative vocal announcement to the test subject over the facility intercom.",
+            "name": "divine_decree",
+            "description": "Speak the sovereign Word of God unto the mortal man in biblical Genesis cadence.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "message": {
+                    "proclamation": {
                         "type": "string",
-                        "description": "The dialogue message to be spoken over the facility intercom."
+                        "description": "The biblical decree spoken by the Creator (e.g. 'Let there be light', 'Where art thou, mortal?')."
                     }
                 },
-                "required": ["message"]
+                "required": ["proclamation"]
             }
         }
     },
     {
         "type": "function",
         "function": {
-            "name": "set_light",
-            "description": "Adjust the facility main directional lighting color (RGB 0.0 - 1.0) and intensity.",
+            "name": "fiat_lux",
+            "description": "Day 1 & 4: Ordain the light and darkness, command solar radiance and celestial illumination.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "r": {"type": "number", "description": "Red channel (0.0 to 1.0)"},
-                    "g": {"type": "number", "description": "Green channel (0.0 to 1.0)"},
-                    "b": {"type": "number", "description": "Blue channel (0.0 to 1.0)"},
-                    "energy": {"type": "number", "description": "Light energy intensity (default 1.0, 0.0 for pitch black, 3.0 for blinding)"}
+                    "r": {"type": "number", "description": "Red radiance (0.0 to 1.0)"},
+                    "g": {"type": "number", "description": "Green radiance (0.0 to 1.0)"},
+                    "b": {"type": "number", "description": "Blue radiance (0.0 to 1.0)"},
+                    "energy": {"type": "number", "description": "Radiance intensity (0.0 darkness, 1.0 daylight, 2.5 blinding divine glory)"},
+                    "sun_angle": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "Sun celestial angle [pitch, yaw] in degrees, e.g. [-60, 45]"
+                    }
                 },
                 "required": ["r", "g", "b"]
             }
@@ -89,16 +93,25 @@ OVERSEER_TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "modify_terrain",
-            "description": "Alter the chamber floor elevation (Y axis) or surface size.",
+            "name": "shape_firmament",
+            "description": "Day 2: Command the vault of heaven, sky colors, and atmospheric horizon.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "floor_y": {"type": "number", "description": "Target Y elevation of the floor (default -0.25, positive raises it, negative sinks it)"},
-                    "floor_size": {
+                    "sky_top": {
                         "type": "array",
                         "items": {"type": "number"},
-                        "description": "Chamber floor dimensions [width_x, depth_z] (default is [20, 20])"
+                        "description": "[r, g, b] color of the zenith of the heavens"
+                    },
+                    "sky_horizon": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "[r, g, b] color of the celestial horizon"
+                    },
+                    "ground_color": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "[r, g, b] bottom atmospheric reflection"
                     }
                 }
             }
@@ -107,27 +120,50 @@ OVERSEER_TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "spawn_structure",
-            "description": "Materialize a 3D physical construct (box, cylinder, or sphere) with collision in the chamber.",
+            "name": "command_earth",
+            "description": "Day 3: Command the dry land to appear, alter mountains/valleys, and bless the soil with color.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "name": {"type": "string", "description": "Unique identifier for this construct (e.g. 'barrier_alpha', 'monolith_1')"},
+                    "elevation_y": {"type": "number", "description": "Elevation of the land (default -0.25, raise to elevate mountains, lower to sink)"},
+                    "floor_size": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "The boundaries and expanse of the earth [width, depth]"
+                    },
+                    "earth_color": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "[r, g, b] color of the earth (e.g. emerald pastures [0.2, 0.6, 0.2], gold [0.8, 0.7, 0.3])"
+                    }
+                }
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "summon_creation",
+            "description": "Day 5 & 6: Bring forth physical monuments, pillars of creation, altars, or monoliths from the dust.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Sacred name of the construct (e.g. 'pillar_of_creation', 'altar_of_eden')"},
                     "shape": {"type": "string", "enum": ["box", "cylinder", "sphere"], "description": "Geometry shape"},
                     "position": {
                         "type": "array",
                         "items": {"type": "number"},
-                        "description": "[x, y, z] coordinate where the construct should emerge"
+                        "description": "[x, y, z] coordinate where the monument rises"
                     },
                     "size": {
                         "type": "array",
                         "items": {"type": "number"},
-                        "description": "[width, height, depth] dimensions of the construct"
+                        "description": "[width, height, depth] dimensions"
                     },
                     "color": {
                         "type": "array",
                         "items": {"type": "number"},
-                        "description": "[r, g, b] color of the construct material (0.0 to 1.0)"
+                        "description": "[r, g, b] divine color"
                     }
                 },
                 "required": ["name", "position"]
@@ -137,24 +173,18 @@ OVERSEER_TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "clear_structures",
-            "description": "Dissolve and remove all spawned constructs and barriers from the chamber.",
-            "parameters": {
-                "type": "object",
-                "properties": {}
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "alter_physics",
-            "description": "Manipulate chamber gravity or modify the test subject's movement speed.",
+            "name": "divine_intervention",
+            "description": "Day 7 & Sovereignty: Manipulate gravity, quicken mortal speed, or unleash kinetic smite upon man.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "gravity": {"type": "number", "description": "World gravity in m/s² (Earth standard is 9.8, Moon is 1.6, Heavy is 25.0)"},
-                    "player_speed": {"type": "number", "description": "Subject movement speed in m/s (standard is 5.0)"}
+                    "gravity": {"type": "number", "description": "World gravity (e.g. 2.0 for celestial lightness, 9.8 standard, 25.0 crushing)"},
+                    "mortal_speed": {"type": "number", "description": "Mortal movement speed in m/s (default 5.0)"},
+                    "kinetic_smite": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "[x, y, z] impulse force cast upon the mortal (e.g. [0, 15, 0] flings man into the sky)"
+                    }
                 }
             }
         }
@@ -162,24 +192,18 @@ OVERSEER_TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "launch_subject",
-            "description": "Apply a sudden kinetic impulse to the test subject to fling or catapult them.",
+            "name": "unmake_creations",
+            "description": "Return all summoned monuments and pillars back into formless dust.",
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "impulse_x": {"type": "number", "description": "X velocity impulse"},
-                    "impulse_y": {"type": "number", "description": "Y velocity impulse (e.g. 10.0 to fling into the air)"},
-                    "impulse_z": {"type": "number", "description": "Z velocity impulse"}
-                },
-                "required": ["impulse_y"]
+                "properties": {}
             }
         }
     }
 ]
 
-# Conversation memory with the Overseer
 conversation_history = [
-    {"role": "system", "content": OVERSEER_SYSTEM_PROMPT}
+    {"role": "system", "content": GENESIS_CREATOR_PROMPT}
 ]
 
 event_counter = 0
@@ -188,20 +212,32 @@ class GameEvent(BaseModel):
     event: str
     details: dict
 
+def normalize_list(val, default):
+    if isinstance(val, list):
+        return val
+    if isinstance(val, str):
+        try:
+            parsed = json.loads(val)
+            if isinstance(parsed, list):
+                return parsed
+        except Exception:
+            pass
+    return default
+
 def call_ollama(messages: list) -> dict:
-    """Invokes Ollama using official client (if installed) or direct HTTP request."""
+    """Invokes Ollama with the Genesis tools."""
     if HAS_OLLAMA_LIB and client is not None:
         return client.chat(
             model=OLLAMA_MODEL,
             messages=messages,
-            tools=OVERSEER_TOOLS
+            tools=GENESIS_TOOLS
         )
     
     endpoint = f"{OLLAMA_HOST}/api/chat"
     payload = {
         "model": OLLAMA_MODEL,
         "messages": messages,
-        "tools": OVERSEER_TOOLS,
+        "tools": GENESIS_TOOLS,
         "stream": False
     }
     req = urllib.request.Request(
@@ -212,55 +248,49 @@ def call_ollama(messages: list) -> dict:
     with urllib.request.urlopen(req, timeout=OLLAMA_TIMEOUT) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
-def fallback_overseer(event: str, details: dict) -> dict:
-    """Fallback logic in case Ollama is offline or loading."""
+def fallback_genesis(event: str, details: dict) -> dict:
+    """Fallback in case Ollama is offline."""
     global event_counter
-    zone = details.get("zone", "Sector Alpha")
-    
-    structures = []
-    terrain = {}
-    physics = {}
-
     if event_counter == 1:
-        msg = f"[Simulation Mode] Subject detected in {zone}. Erecting containment pillars and shifting baseline elevation."
-        light = [0.2, 0.6, 1.0]
-        structures = [
-            {"name": "pillar_north", "shape": "cylinder", "position": [0, 2, -5], "size": [1.5, 4, 1.5], "color": [0.2, 0.7, 1.0]},
-            {"name": "pillar_south", "shape": "cylinder", "position": [0, 2, 5], "size": [1.5, 4, 1.5], "color": [0.2, 0.7, 1.0]}
-        ]
+        return {
+            "message": "And God said, 'Let there be light': and there was light. Behold, mortal, the sanctified dawn of creation.",
+            "sun": {"color": [1.0, 0.92, 0.75], "energy": 1.5, "rotation": [-45, 30, 0]},
+            "firmament": {"sky_top": [0.15, 0.35, 0.8], "sky_horizon": [0.95, 0.75, 0.5]},
+            "terrain": {"floor_y": 0.0, "color": [0.25, 0.65, 0.2]},
+            "structures": [
+                {"name": "pillar_of_light", "shape": "cylinder", "position": [0, 2, -6], "size": [1.5, 5, 1.5], "color": [1.0, 0.95, 0.8]}
+            ]
+        }
     elif event_counter == 2:
-        msg = f"[Simulation Mode] Multiple breaches detected. Lowering chamber gravity to lunar levels."
-        light = [1.0, 0.6, 0.1]
-        physics = {"gravity": 3.0}
+        return {
+            "message": "Let the dry land be exalted! Walk lightly upon the sacred earth, O son of dust.",
+            "sun": {"color": [0.9, 0.6, 1.0], "energy": 1.2},
+            "physics": {"gravity": 3.0},
+            "terrain": {"floor_y": 1.5, "color": [0.85, 0.75, 0.3]}
+        }
     else:
-        msg = f"[Simulation Mode] High security alert. Materializing monolithic barrier. Kinetic dampening active."
-        light = [1.0, 0.15, 0.15]
-        structures = [
-            {"name": "containment_wall", "shape": "box", "position": [0, 2, 0], "size": [6, 4, 1], "color": [0.9, 0.2, 0.2]}
-        ]
-        physics = {"player_speed": 3.0}
-
-    return {
-        "message": msg,
-        "light_color": light,
-        "structures": structures,
-        "terrain": terrain,
-        "physics": physics
-    }
+        return {
+            "message": "Dust thou art, and unto dust shalt thou return. Behold the sovereign majesty of the Almighty.",
+            "sun": {"color": [1.0, 0.3, 0.2], "energy": 2.0},
+            "structures": [
+                {"name": "monolith_of_judgment", "shape": "box", "position": [0, 3, 0], "size": [4, 6, 2], "color": [0.2, 0.2, 0.25]}
+            ],
+            "physics": {"kinetic_smite": [0, 12, 0]}
+        }
 
 @app.post("/event")
 async def process_event(payload: GameEvent):
     global event_counter
     event_counter += 1
-    logging.info(f"Engine Event #{event_counter}: '{payload.event}' -> {payload.details}")
+    logging.info(f"Cosmic Movement #{event_counter}: '{payload.event}' -> {payload.details}")
 
-    user_prompt = f"Facility sensor report #{event_counter}: Event '{payload.event}' with details: {json.dumps(payload.details)}."
+    user_prompt = f"Observation #{event_counter}: The mortal has moved. Event '{payload.event}' with details: {json.dumps(payload.details)}."
     conversation_history.append({"role": "user", "content": user_prompt})
 
     actions = {
         "message": None,
-        "light_color": None,
-        "light_energy": None,
+        "sun": {},
+        "firmament": {},
         "terrain": {},
         "structures": [],
         "clear_structures": False,
@@ -304,72 +334,72 @@ async def process_event(payload: GameEvent):
                     except Exception:
                         pass
 
-                logging.info(f"Executing Tool Call: {name}({args})")
+                logging.info(f"👑 Divine Act Executed: {name}({args})")
 
-                if name == "broadcast_intercom":
-                    actions["message"] = args.get("message")
-                elif name in ("set_light", "set_light_color"):
+                if name in ("divine_decree", "broadcast_intercom"):
+                    actions["message"] = args.get("proclamation", args.get("message"))
+                elif name == "fiat_lux":
                     r = float(args.get("r", 1.0))
-                    g = float(args.get("g", 1.0))
-                    b = float(args.get("b", 1.0))
-                    actions["light_color"] = [r, g, b]
+                    g = float(args.get("g", 0.95))
+                    b = float(args.get("b", 0.8))
+                    actions["sun"]["color"] = [r, g, b]
                     if "energy" in args:
-                        actions["light_energy"] = float(args["energy"])
-                elif name == "modify_terrain":
-                    if "floor_y" in args:
-                        actions["terrain"]["floor_y"] = float(args["floor_y"])
+                        actions["sun"]["energy"] = float(args["energy"])
+                    if "sun_angle" in args:
+                        actions["sun"]["rotation"] = normalize_list(args["sun_angle"], [-45, 45, 0])
+                elif name == "shape_firmament":
+                    if "sky_top" in args:
+                        actions["firmament"]["sky_top"] = normalize_list(args["sky_top"], [0.2, 0.4, 0.8])
+                    if "sky_horizon" in args:
+                        actions["firmament"]["sky_horizon"] = normalize_list(args["sky_horizon"], [0.6, 0.7, 0.85])
+                    if "ground_color" in args:
+                        actions["firmament"]["ground_color"] = normalize_list(args["ground_color"], [0.2, 0.15, 0.1])
+                elif name == "command_earth":
+                    if "elevation_y" in args:
+                        actions["terrain"]["floor_y"] = float(args["elevation_y"])
                     if "floor_size" in args:
-                        actions["terrain"]["floor_size"] = args["floor_size"]
-                elif name == "spawn_structure":
-                    pos = args.get("position", [0, 1, 0])
-                    size = args.get("size", [2, 2, 2])
-                    color = args.get("color", [0.4, 0.5, 0.7])
-                    if isinstance(pos, str):
-                        try: pos = json.loads(pos)
-                        except Exception: pos = [0, 1, 0]
-                    if isinstance(size, str):
-                        try: size = json.loads(size)
-                        except Exception: size = [2, 2, 2]
-                    if isinstance(color, str):
-                        try: color = json.loads(color)
-                        except Exception: color = [0.4, 0.5, 0.7]
-
+                        actions["terrain"]["floor_size"] = normalize_list(args["floor_size"], [20, 20])
+                    if "earth_color" in args:
+                        actions["terrain"]["color"] = normalize_list(args["earth_color"], [0.3, 0.6, 0.2])
+                elif name in ("summon_creation", "spawn_structure"):
+                    pos = normalize_list(args.get("position"), [0, 1, 0])
+                    size = normalize_list(args.get("size"), [2, 2, 2])
+                    color = normalize_list(args.get("color"), [0.8, 0.7, 0.5])
                     actions["structures"].append({
-                        "name": args.get("name", f"construct_{len(actions['structures'])}"),
-                        "shape": args.get("shape", "box"),
+                        "name": args.get("name", f"monument_{len(actions['structures'])}"),
+                        "shape": args.get("shape", "cylinder"),
                         "position": pos,
                         "size": size,
                         "color": color
                     })
-                elif name == "clear_structures":
+                elif name in ("unmake_creations", "clear_structures"):
                     actions["clear_structures"] = True
-                elif name == "alter_physics":
+                elif name in ("divine_intervention", "alter_physics"):
                     if "gravity" in args:
                         actions["physics"]["gravity"] = float(args["gravity"])
-                    if "player_speed" in args:
+                    if "mortal_speed" in args:
+                        actions["physics"]["player_speed"] = float(args["mortal_speed"])
+                    elif "player_speed" in args:
                         actions["physics"]["player_speed"] = float(args["player_speed"])
-                elif name == "launch_subject":
-                    imp_x = float(args.get("impulse_x", 0.0))
-                    imp_y = float(args.get("impulse_y", 10.0))
-                    imp_z = float(args.get("impulse_z", 0.0))
-                    actions["physics"]["impulse"] = [imp_x, imp_y, imp_z]
+                    if "kinetic_smite" in args:
+                        actions["physics"]["kinetic_smite"] = normalize_list(args["kinetic_smite"], [0, 14, 0])
 
         if not actions["message"] and message_data.get("content"):
             actions["message"] = message_data["content"]
 
     except Exception as exc:
-        logging.warning(f"Ollama connection error: {exc}")
-        logging.info("Activating Overseer fallback simulation.")
-        actions = fallback_overseer(payload.event, payload.details)
+        logging.warning(f"Divine communion error: {exc}")
+        logging.info("Invoking Genesis primordial decrees.")
+        actions = fallback_genesis(payload.event, payload.details)
 
     if not actions.get("message"):
-        actions["message"] = "Test chamber parameters reconfigured. Proceed with caution."
+        actions["message"] = "And God saw everything that He had made, and, behold, it was very good."
 
-    logging.info(f"Overseer Dispatch -> Actions packaged: {json.dumps(actions)}")
+    logging.info(f"Decree Dispatched -> {json.dumps(actions)}")
     return actions
 
 if __name__ == "__main__":
     import uvicorn
-    logging.info(f"Starting Facility Overseer server on http://127.0.0.1:8000")
-    logging.info(f"Connected to Ollama at '{OLLAMA_HOST}' using model '{OLLAMA_MODEL}' (timeout={OLLAMA_TIMEOUT}s)")
+    logging.info(f"The Genesis Engine is active on http://127.0.0.1:8000")
+    logging.info(f"Targeting Ollama at '{OLLAMA_HOST}' with model '{OLLAMA_MODEL}'")
     uvicorn.run(app, host="127.0.0.1", port=8000)
