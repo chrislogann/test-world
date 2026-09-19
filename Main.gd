@@ -6,11 +6,24 @@ extends Node3D
 @onready var player_node: CharacterBody3D = $Player
 @onready var spawned_objects_container: Node3D = $SpawnedObjects
 @onready var world_env: WorldEnvironment = $WorldEnvironment
+@onready var aura_light: OmniLight3D = $SectorAlphaTrigger/AuraLight
+@onready var aura_pillar: CSGCylinder3D = $SectorAlphaTrigger/PillarOfLight
+@onready var aura_ring: CSGCylinder3D = $SectorAlphaTrigger/SanctifiedRing
 
 const OVERSEER_URL = "http://127.0.0.1:8000/event"
 
 func _ready() -> void:
 	http_request.request_completed.connect(_on_overseer_response)
+	start_holy_aura_animation()
+
+func start_holy_aura_animation() -> void:
+	if aura_light != null:
+		var pulse := create_tween().set_loops()
+		pulse.tween_property(aura_light, "light_energy", 4.8, 2.0).set_trans(Tween.TRANS_SINE)
+		pulse.tween_property(aura_light, "light_energy", 2.2, 2.0).set_trans(Tween.TRANS_SINE)
+	if aura_ring != null:
+		var rot := create_tween().set_loops()
+		rot.tween_property(aura_ring, "rotation_degrees:y", 360.0, 16.0).as_relative()
 
 func send_event_to_overseer(event_name: String, details: Dictionary) -> void:
 	var payload := {
@@ -266,6 +279,10 @@ func parse_to_array(val, default_arr: Array) -> Array:
 func _on_sector_alpha_trigger_body_entered(body: Node3D) -> void:
 	if body.is_in_group("Player") or body.name == "Player":
 		print("The mortal sets foot in the sacred sanctuary...")
+		if aura_light != null:
+			var flare := create_tween()
+			flare.tween_property(aura_light, "light_energy", 8.0, 0.25).set_trans(Tween.TRANS_EXPO)
+			flare.tween_property(aura_light, "light_energy", 3.5, 1.2).set_trans(Tween.TRANS_SINE)
 		send_event_to_overseer("mortal_enters_sanctuary", {
 			"location": "Eden Sanctuary (Sector Alpha)",
 			"subject": "Mortal Adam",
